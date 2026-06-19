@@ -1,108 +1,114 @@
 # tmux-claude-usage
 
-Show your Claude subscription usage — session/weekly percentage and time until
-reset — directly in your tmux status line. No more flipping to the browser to
-check how much you have left.
+Show your Claude subscription usage in your **tmux status bar** — a progress
+bar, percent used, and a human reset time — so you never alt-tab to the browser
+usage page again.
 
 ```
-5h:30% (4h)          # default
-[claude] 5h:30% (4h) 7d:62% (3d)   # session + weekly, with a prefix
+██████░░░░  64% used · resets in 3 hr 37 min
 ```
 
-It reads the same numbers the Claude usage page shows, caches them, and never
-blocks your status line on the network.
+It reads the **official** usage data Claude Code already receives (no API calls,
+no tokens, no rate limits), shows it **once** in your global status bar instead
+of repeated in every pane, and updates live as you work.
+
+## How it works
+
+Two small pieces:
+
+1. **Harvester** — a Claude Code [status line](https://code.claude.com/docs/en/statusline)
+   command. Claude passes it official session data (including `rate_limits`) on
+   every render; it writes your usage to a cache file and **prints nothing**, so
+   nothing shows inside the Claude pane.
+2. **Segment** — a tiny script your tmux status line calls. It reads that cache
+   file and renders the bar. Pure bash, no network.
+
+Because the data comes from Claude Code itself, it's free and accurate, and it
+refreshes whenever Claude renders — i.e. continuously while you're working.
 
 ## Requirements
 
 - `tmux` 3.0+
-- `curl` and `jq`
-- A logged-in Claude Code install (the token is read from your local
-  credentials — macOS Keychain or `~/.claude/.credentials.json`)
+- `jq` (used by the harvester to parse Claude's JSON)
+- Claude Code (logged in)
 
 ## Install
 
-### With [TPM](https://github.com/tmux-plugins/tpm)
-
-Add to `~/.tmux.conf` (or `~/.config/tmux/tmux.conf`):
+### 1. Add the plugin (via [TPM](https://github.com/tmux-plugins/tpm))
 
 ```tmux
 set -g @plugin 'docker-run/tmux-claude-usage'
 ```
 
-Then put the placeholder wherever you want it in your status line:
+Press `prefix + I` to fetch it.
+
+### 2. Place the segment in your status line
 
 ```tmux
 set -g status-right '#{claude_usage}  %Y-%m-%d %H:%M'
 ```
 
-Hit `prefix + I` to fetch and you're done.
+### 3. Wire up the harvester (one command)
 
-### Manual
-
-```tmux
-run-shell ~/clone/path/tmux-claude-usage/claude-usage.tmux
+```sh
+~/.tmux/plugins/tmux-claude-usage/scripts/init.sh
 ```
 
-## Theming
+This adds the status line command to `~/.claude/settings.json` (backing it up
+first). That's it — use Claude Code normally and the bar fills in.
 
-By default the segment is **unstyled** — it inherits your status line's colors,
-so it fits any theme out of the box. Opt into color by mapping the API's
-severity levels to colors:
+> Already have a Claude Code status line? `init.sh` won't overwrite it; re-run
+> with `--force` to replace it, or `--uninstall` to remove ours later.
+
+## Configuration
+
+Everything is optional with sensible defaults. By default the segment is
+**unstyled** (inherits your theme) and shows the 5-hour session window.
 
 ```tmux
+# Colors (opt-in), by usage threshold
 set -g @claude_usage_color_normal   '#7aa2f7'
 set -g @claude_usage_color_warning  '#e0af68'
 set -g @claude_usage_color_critical '#f7768e'
 ```
 
-## Options
-
 | Option | Default | Description |
 | --- | --- | --- |
 | `@claude_usage_show` | `session` | `session`, `weekly`, or `all` |
-| `@claude_usage_show_reset` | `on` | Append time-until-reset, e.g. `(4h)` |
-| `@claude_usage_cache_ttl` | `60` | Minimum seconds between API refreshes |
-| `@claude_usage_label_session` | `5h:` | Label for the 5-hour window |
-| `@claude_usage_label_weekly` | `7d:` | Label for the 7-day window |
+| `@claude_usage_show_bar` | `on` | Show the progress bar |
+| `@claude_usage_bar_width` | `10` | Bar width in cells |
+| `@claude_usage_bar_full` | `█` | Filled bar character |
+| `@claude_usage_bar_empty` | `░` | Empty bar character |
+| `@claude_usage_show_reset` | `on` | Show "resets in …" |
+| `@claude_usage_show_label` | `off` | Prefix "Session"/"Week" (auto-on for `all`) |
+| `@claude_usage_session_label` | `Session` | Label for the 5-hour window |
+| `@claude_usage_weekly_label` | `Week` | Label for the 7-day window |
 | `@claude_usage_prefix` | _(empty)_ | Text/icon before the segment |
-| `@claude_usage_color_normal` | _(none)_ | Color when severity is `normal` |
-| `@claude_usage_color_warning` | _(none)_ | Color when severity is `warning` |
-| `@claude_usage_color_critical` | _(none)_ | Color when severity is `critical` |
-| `@claude_usage_token_command` | _(auto)_ | Shell command that prints the OAuth token, if you store it elsewhere |
+| `@claude_usage_separator` | `  ` | Between windows in `all` mode |
+| `@claude_usage_warning_threshold` | `70` | % at which `warning` color applies |
+| `@claude_usage_critical_threshold` | `90` | % at which `critical` color applies |
+| `@claude_usage_color_normal` | _(none)_ | Color below the warning threshold |
+| `@claude_usage_color_warning` | _(none)_ | Color at/above warning threshold |
+| `@claude_usage_color_critical` | _(none)_ | Color at/above critical threshold |
 
-## Update frequency
+### Update frequency
 
-The segment updates whenever tmux repaints the status line, which it does every
-`status-interval` seconds (tmux default: 15). To update it more often, lower
-that standard tmux setting:
+The bar repaints every `status-interval` seconds (standard tmux setting; default
+15). Lower it for a snappier bar — it just re-reads a local file, so it's free:
 
 ```tmux
 set -g status-interval 5
 ```
 
-API calls are throttled separately by `@claude_usage_cache_ttl` (default 60s) so
-a low `status-interval` won't hammer the endpoint — the effective refresh rate is
-the larger of the two. Lowering `status-interval` alone repaints the bar more
-often (free) without extra API calls.
-
-> The usage endpoint is rate-limited. Don't set `@claude_usage_cache_ttl` very
-> low (a handful of seconds) or you may get throttled — `30` is a sensible floor
-> for near-live updates. On a throttle or any error the last good value is kept.
-
-## How it works
-
-The status line calls a script that only reads a small cache file and prints it,
-so redraws are instant. When the cache is older than `@claude_usage_cache_ttl`,
-a single background refresh is spawned (lock-guarded) to update it for the next
-redraw. The refresh resolves your Claude Code OAuth token, requests usage from
-`api.anthropic.com`, and renders the segment. On any failure the last good value
-is kept.
+The underlying numbers refresh whenever Claude Code renders its status line,
+which is constant while you're actively working — exactly when usage changes.
 
 ## Notes
 
-This uses an undocumented usage endpoint and may break if it changes. It only
-ever reads your usage; it does not transmit anything anywhere except the
-authenticated request to Anthropic.
+- The bar is empty until Claude Code renders at least once in a session, and the
+  value goes stale if Claude isn't running — but then your usage isn't changing.
+- The harvester only reads Claude's data and writes a local file; nothing is sent
+  anywhere.
 
 ## License
 

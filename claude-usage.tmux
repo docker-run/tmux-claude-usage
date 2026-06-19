@@ -5,7 +5,7 @@
 
 CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PLACEHOLDER='#{claude_usage}'
-SCRIPT_CALL="#($CURRENT_DIR/scripts/claude_usage.sh)"
+SCRIPT_CALL="#($CURRENT_DIR/scripts/segment.sh)"
 
 set_tmux_option() {
 	tmux set-option -gq "$1" "$2"
@@ -24,7 +24,7 @@ interpolate_option() {
 }
 
 main() {
-	chmod +x "$CURRENT_DIR/scripts/claude_usage.sh" 2>/dev/null
+	chmod +x "$CURRENT_DIR"/scripts/*.sh 2>/dev/null
 	interpolate_option "status-right"
 	interpolate_option "status-left"
 }

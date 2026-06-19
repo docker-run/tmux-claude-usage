@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
-# Shared helpers for tmux-claude-usage.
-# Sourced by claude_usage.sh — not meant to be run directly.
+# Shared helpers for the tmux segment. Sourced, not executed.
+
+# Path to the cache file the statusLine harvester writes and the segment reads.
+# HOME-based (not TMPDIR) so it is stable across the Claude Code and tmux
+# processes, which may not share a temp dir.
+usage_cache_file() {
+	printf '%s/claude-usage/usage' "${XDG_CACHE_HOME:-$HOME/.cache}"
+}
 
 # Read a tmux user option, falling back to a default when unset/empty.
 get_tmux_option() {
@@ -13,63 +19,48 @@ get_tmux_option() {
 	fi
 }
 
-# Resolve the Claude Code OAuth access token.
-# Order: user-supplied command -> macOS Keychain -> credentials file.
-# Prints the token on stdout, or returns non-zero if none found.
-resolve_token() {
-	local override json token
-
-	override="$(get_tmux_option @claude_usage_token_command "")"
-	if [ -n "$override" ]; then
-		eval "$override"
-		return $?
-	fi
-
-	if command -v security >/dev/null 2>&1; then
-		json="$(security find-generic-password -s 'Claude Code-credentials' -w 2>/dev/null || true)"
-		if [ -n "$json" ]; then
-			token="$(printf '%s' "$json" | jq -r '.claudeAiOauth.accessToken // empty')"
-			[ -n "$token" ] && { printf '%s' "$token"; return 0; }
-		fi
-	fi
-
-	if [ -f "$HOME/.claude/.credentials.json" ]; then
-		token="$(jq -r '.claudeAiOauth.accessToken // empty' "$HOME/.claude/.credentials.json")"
-		[ -n "$token" ] && { printf '%s' "$token"; return 0; }
-	fi
-
-	return 1
+# Render a text progress bar. Args: percent width full_char empty_char.
+render_bar() {
+	local pct="$1" width="$2" full="$3" empty="$4" filled i out=""
+	filled=$(((pct * width + 50) / 100)) # rounded to nearest cell
+	((filled < 0)) && filled=0
+	((filled > width)) && filled=width
+	for ((i = 0; i < filled; i++)); do out+="$full"; done
+	for ((i = filled; i < width; i++)); do out+="$empty"; done
+	printf '%s' "$out"
 }
 
-# Convert an ISO-8601 timestamp (assumed UTC) to a Unix epoch.
-# Handles both GNU date and BSD/macOS date.
-to_epoch() {
-	local iso="$1" trimmed
-	if date -d "$iso" +%s >/dev/null 2>&1; then
-		date -d "$iso" +%s # GNU
-		return
-	fi
-	# BSD: strip fractional seconds and timezone offset, parse as UTC.
-	trimmed="${iso%%.*}"
-	trimmed="${trimmed%%+*}"
-	trimmed="${trimmed%Z}"
-	TZ=UTC date -j -f "%Y-%m-%dT%H:%M:%S" "$trimmed" +%s 2>/dev/null
-}
-
-# Format a duration in seconds as a compact human string: 2d / 3h / 45m.
-human_duration() {
-	local s="$1"
+# Format seconds-until-reset as browser-style text: "4 hr 50 min", "2 days 3 hr".
+human_reset() {
+	local s="$1" d h m
 	((s < 0)) && s=0
-	if ((s >= 86400)); then
-		printf '%dd' $((s / 86400))
-	elif ((s >= 3600)); then
-		printf '%dh' $((s / 3600))
+	d=$((s / 86400))
+	h=$(((s % 86400) / 3600))
+	m=$(((s % 3600) / 60))
+	if ((d > 0)); then
+		if ((h > 0)); then
+			printf '%d day%s %d hr' "$d" "$([ "$d" -ne 1 ] && printf s)" "$h"
+		else
+			printf '%d day%s' "$d" "$([ "$d" -ne 1 ] && printf s)"
+		fi
+	elif ((h > 0)); then
+		if ((m > 0)); then printf '%d hr %d min' "$h" "$m"; else printf '%d hr' "$h"; fi
 	else
-		printf '%dm' $(((s + 59) / 60))
+		printf '%d min' "$m"
 	fi
 }
 
-# Epoch mtime of a file, GNU/BSD agnostic. Prints 0 if it cannot be read.
-file_mtime() {
-	stat -f %m "$1" 2>/dev/null || stat -c %Y "$1" 2>/dev/null || echo 0
+# Pick a color for a usage percentage based on the configured thresholds.
+# Prints empty string when the relevant color option is unset (theme-agnostic).
+pick_color() {
+	local pct="$1" warn crit
+	warn="$(get_tmux_option @claude_usage_warning_threshold 70)"
+	crit="$(get_tmux_option @claude_usage_critical_threshold 90)"
+	if ((pct >= crit)); then
+		get_tmux_option @claude_usage_color_critical ''
+	elif ((pct >= warn)); then
+		get_tmux_option @claude_usage_color_warning ''
+	else
+		get_tmux_option @claude_usage_color_normal ''
+	fi
 }
