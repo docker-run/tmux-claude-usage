@@ -4,9 +4,7 @@
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Build](https://github.com/docker-run/tmux-claude-usage/actions/workflows/shellcheck.yml/badge.svg)](https://github.com/docker-run/tmux-claude-usage/actions/workflows/shellcheck.yml)
 
-Your Claude usage — progress bar, percent, and reset time — right in the tmux status bar.
-
-It uses the official usage data Claude Code already receives — no API calls, no tokens, no rate limits — and updates live as you work.
+Your Claude usage — progress bar, percent, and reset time — right in the tmux status bar. It uses the official usage data Claude Code already receives — no API calls, no tokens, no rate limits — and updates live as you work.
 
 ## Contents
 
