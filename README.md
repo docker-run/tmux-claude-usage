@@ -64,16 +64,10 @@ up first). Use Claude Code normally and the bar fills in.
 
 ## Configuration
 
-No configuration is required. Out of the box the segment shows the 5-hour
-session window, inherits your theme's color normally, and turns **yellow** then
-**red** as you approach your limit. Override the colors to match your theme if
-you like — hex or palette names both work:
-
-```tmux
-set -g @claude_usage_color_normal   '#7aa2f7'
-set -g @claude_usage_color_warning  '#e0af68'
-set -g @claude_usage_color_critical '#f7768e'
-```
+Out of the box the segment shows the 5-hour
+session window, inherits your theme's color normally, and turns **amber** then
+**red** as you approach your limit. Every option below is optional — for
+example, override the colors to match your theme (hex or palette names both work).
 
 | Option | Default | Description |
 | --- | --- | --- |
@@ -102,9 +96,6 @@ The bar repaints every `status-interval` seconds (standard tmux setting, default
 ```tmux
 set -g status-interval 5
 ```
-
-The numbers themselves refresh whenever Claude Code renders — constant while
-you're actively working, idle when it isn't (which is when usage isn't changing).
 
 ## Contribution
 
