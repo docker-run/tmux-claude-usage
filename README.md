@@ -64,9 +64,10 @@ up first). Use Claude Code normally and the bar fills in.
 
 ## Configuration
 
-No configuration is required. By default the segment is **unstyled** (inherits
-your theme) and shows the 5-hour session window. Opt into color by usage
-threshold:
+No configuration is required. Out of the box the segment shows the 5-hour
+session window, inherits your theme's color normally, and turns **yellow** then
+**red** as you approach your limit. Override the colors to match your theme if
+you like — hex or palette names both work:
 
 ```tmux
 set -g @claude_usage_color_normal   '#7aa2f7'
@@ -89,9 +90,9 @@ set -g @claude_usage_color_critical '#f7768e'
 | `@claude_usage_separator` | `  ` | Between windows in `all` mode |
 | `@claude_usage_warning_threshold` | `70` | % for the `warning` color |
 | `@claude_usage_critical_threshold` | `90` | % for the `critical` color |
-| `@claude_usage_color_normal` | _(none)_ | Color below the warning threshold |
-| `@claude_usage_color_warning` | _(none)_ | Color at/above warning |
-| `@claude_usage_color_critical` | _(none)_ | Color at/above critical |
+| `@claude_usage_color_normal` | _(theme)_ | Color below the warning threshold |
+| `@claude_usage_color_warning` | `yellow` | Color at/above warning |
+| `@claude_usage_color_critical` | `red` | Color at/above critical |
 
 ## Update frequency
 

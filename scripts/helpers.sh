@@ -57,9 +57,9 @@ pick_color() {
 	warn="$(get_tmux_option @claude_usage_warning_threshold 70)"
 	crit="$(get_tmux_option @claude_usage_critical_threshold 90)"
 	if ((pct >= crit)); then
-		get_tmux_option @claude_usage_color_critical ''
+		get_tmux_option @claude_usage_color_critical 'red'
 	elif ((pct >= warn)); then
-		get_tmux_option @claude_usage_color_warning ''
+		get_tmux_option @claude_usage_color_warning 'yellow'
 	else
 		get_tmux_option @claude_usage_color_normal ''
 	fi
