@@ -107,6 +107,9 @@ render() {
 refresh() {
 	local json out
 	json="$(fetch_usage)" || return 1
+	# Bail on API errors (e.g. rate limiting) or invalid bodies so we keep the
+	# last good value instead of overwriting it with garbage.
+	printf '%s' "$json" | jq -e 'has("error") | not' >/dev/null 2>&1 || return 1
 	out="$(render "$json")" || return 1
 	printf '%s' "$out" >"$CACHE_FILE.tmp" && mv "$CACHE_FILE.tmp" "$CACHE_FILE"
 }
@@ -123,12 +126,12 @@ main() {
 		exit $?
 	fi
 
+	# On-demand refresh, throttled by cache_ttl so a low status-interval can't
+	# hammer the API. Lock so concurrent redraws spawn a single refresh; detach
+	# fds so tmux never waits on us.
 	local ttl
-	ttl="$(get_tmux_option @claude_usage_cache_ttl 120)"
-
+	ttl="$(get_tmux_option @claude_usage_cache_ttl 60)"
 	if cache_is_stale "$ttl"; then
-		# Lock so concurrent redraws spawn a single refresh. Detach all fds
-		# from tmux so it gets EOF immediately and never waits on us.
 		if mkdir "$LOCK_DIR" 2>/dev/null; then
 			(
 				trap 'rmdir "$LOCK_DIR" 2>/dev/null' EXIT

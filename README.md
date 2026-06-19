@@ -61,7 +61,7 @@ set -g @claude_usage_color_critical '#f7768e'
 | --- | --- | --- |
 | `@claude_usage_show` | `session` | `session`, `weekly`, or `all` |
 | `@claude_usage_show_reset` | `on` | Append time-until-reset, e.g. `(4h)` |
-| `@claude_usage_cache_ttl` | `120` | Seconds between API refreshes |
+| `@claude_usage_cache_ttl` | `60` | Minimum seconds between API refreshes |
 | `@claude_usage_label_session` | `5h:` | Label for the 5-hour window |
 | `@claude_usage_label_weekly` | `7d:` | Label for the 7-day window |
 | `@claude_usage_prefix` | _(empty)_ | Text/icon before the segment |
@@ -69,6 +69,25 @@ set -g @claude_usage_color_critical '#f7768e'
 | `@claude_usage_color_warning` | _(none)_ | Color when severity is `warning` |
 | `@claude_usage_color_critical` | _(none)_ | Color when severity is `critical` |
 | `@claude_usage_token_command` | _(auto)_ | Shell command that prints the OAuth token, if you store it elsewhere |
+
+## Update frequency
+
+The segment updates whenever tmux repaints the status line, which it does every
+`status-interval` seconds (tmux default: 15). To update it more often, lower
+that standard tmux setting:
+
+```tmux
+set -g status-interval 5
+```
+
+API calls are throttled separately by `@claude_usage_cache_ttl` (default 60s) so
+a low `status-interval` won't hammer the endpoint — the effective refresh rate is
+the larger of the two. Lowering `status-interval` alone repaints the bar more
+often (free) without extra API calls.
+
+> The usage endpoint is rate-limited. Don't set `@claude_usage_cache_ttl` very
+> low (a handful of seconds) or you may get throttled — `30` is a sensible floor
+> for near-live updates. On a throttle or any error the last good value is kept.
 
 ## How it works
 
