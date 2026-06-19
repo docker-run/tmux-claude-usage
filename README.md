@@ -1,10 +1,10 @@
 ![demo](https://github.com/docker-run/tmux-claude-usage/releases/download/media/demo.gif)
 
-*Your Claude usage — progress bar, percent, and reset time — right in the tmux status bar.*
-
 [![Download](https://img.shields.io/badge/Download-v1.0.0-2ea44f)](https://github.com/docker-run/tmux-claude-usage/releases/latest)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Build](https://github.com/docker-run/tmux-claude-usage/actions/workflows/shellcheck.yml/badge.svg)](https://github.com/docker-run/tmux-claude-usage/actions/workflows/shellcheck.yml)
+
+Your Claude usage — progress bar, percent, and reset time — right in the tmux status bar.
 
 ## Contents
 
@@ -14,7 +14,7 @@
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Update frequency](#update-frequency)
-- [Contributing](#contributing)
+- [Contribution](#contribution)
 - [License](#license)
 
 ## Overview
@@ -78,8 +78,9 @@ up first). Use Claude Code normally and the bar fills in.
 
 ## Configuration
 
-All options are optional. By default the segment is **unstyled** (inherits your
-theme) and shows the 5-hour session window. Opt into color by usage threshold:
+No configuration is required. By default the segment is **unstyled** (inherits
+your theme) and shows the 5-hour session window. Opt into color by usage
+threshold:
 
 ```tmux
 set -g @claude_usage_color_normal   '#7aa2f7'
@@ -118,10 +119,9 @@ set -g status-interval 5
 The numbers themselves refresh whenever Claude Code renders — constant while
 you're actively working, idle when it isn't (which is when usage isn't changing).
 
-## Contributing
+## Contribution
 
-Issues and PRs welcome. Scripts are checked with
-[ShellCheck](https://www.shellcheck.net/) in CI; please keep them clean.
+See the [CONTRIBUTION.md](CONTRIBUTION.md) file.
 
 ## License
 
