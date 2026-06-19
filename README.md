@@ -12,10 +12,7 @@ It reads the **official** usage data Claude Code already receives (no API calls,
 no tokens, no rate limits), shows it **once** in your global status bar instead
 of repeated in every pane, and updates live as you work.
 
-![demo](assets/demo.gif)
-
-> The demo above is generated reproducibly from [`assets/demo.tape`](assets/demo.tape)
-> with [vhs](https://github.com/charmbracelet/vhs) (`vhs assets/demo.tape`).
+![demo](https://github.com/docker-run/tmux-claude-usage/releases/download/media/demo.gif)
 
 ## How it works
 

@@ -1,3 +1,6 @@
 .DS_Store
 *.cache
 *.tmp
+
+# demo media — hosted in the "media" release, not shipped to users
+assets/
