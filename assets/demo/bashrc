@@ -1,0 +1,3 @@
+# Minimal rc for the demo pane so no real username/path is shown.
+PS1='max ~ $ '
+clear

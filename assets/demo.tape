@@ -16,8 +16,7 @@ Set Theme "TokyoNight"
 Hide
 Type 'export XDG_CACHE_HOME=$(mktemp -d); L=cu-demo; S=$PWD/scripts/segment.sh' Enter
 Type 'bash assets/demo/seed.sh 32' Enter
-Type 'tmux -L $L new-session -d "bash --norc"' Enter
-Type 'tmux -L $L send-keys "clear" Enter' Enter
+Type 'tmux -L $L new-session -d "bash --rcfile $PWD/assets/demo/bashrc"' Enter
 Type 'tmux -L $L set -g status-style "fg=#7aa2f7,bg=#1f2335"' Enter
 Type 'tmux -L $L set -g status-left "#[fg=#1d202f,bg=#7aa2f7,bold] claude #[fg=#7aa2f7,bg=#1f2335] "' Enter
 Type 'tmux -L $L set -g status-right "#($S) #[fg=#7aa2f7,bg=#1f2335]"' Enter
