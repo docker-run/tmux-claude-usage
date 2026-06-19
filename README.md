@@ -26,7 +26,7 @@ blocks your status line on the network.
 Add to `~/.tmux.conf` (or `~/.config/tmux/tmux.conf`):
 
 ```tmux
-set -g @plugin 'YOUR_GH_USER/tmux-claude-usage'
+set -g @plugin 'docker-run/tmux-claude-usage'
 ```
 
 Then put the placeholder wherever you want it in your status line:
