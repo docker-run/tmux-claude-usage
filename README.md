@@ -6,9 +6,10 @@
 
 Your Claude usage — progress bar, percent, and reset time — right in the tmux status bar.
 
+It uses the official usage data Claude Code already receives — no API calls, no tokens, no rate limits — and updates live as you work.
+
 ## Contents
 
-- [Overview](#overview)
 - [How it works](#how-it-works)
 - [Requirements](#requirements)
 - [Installation](#installation)
@@ -16,19 +17,6 @@ Your Claude usage — progress bar, percent, and reset time — right in the tmu
 - [Update frequency](#update-frequency)
 - [Contribution](#contribution)
 - [License](#license)
-
-## Overview
-
-Stop alt-tabbing to the browser usage page. This plugin shows your Claude
-subscription usage — a progress bar, `% used`, and a human reset time — in your
-tmux status bar, **once**, globally:
-
-```
-██████░░░░  64% used · resets in 3 hr 37 min
-```
-
-It uses the **official** usage data Claude Code already receives — no API calls,
-no tokens, no rate limits — and updates live as you work.
 
 ## How it works
 
