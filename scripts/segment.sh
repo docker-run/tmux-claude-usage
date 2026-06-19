@@ -47,11 +47,26 @@ window_segment() {
 	local pct
 	printf -v pct '%.0f' "$pct_raw" 2>/dev/null || return 1
 
+	# Only trust reset_epoch if it's a plain epoch integer (guards against a
+	# future payload handing us an ISO string, which would break the maths).
+	local have_reset=0
+	[[ "$reset_epoch" =~ ^[0-9]+$ ]] && have_reset=1
+
+	# Self-expiring cache: once the window's reset time has passed, it has
+	# provably rolled over to a fresh window. The harvester only refreshes while
+	# Claude renders, so an idle cache would otherwise show stale numbers — but
+	# we know the truth locally: usage is back to 0% and there's no active
+	# window to count down to. No probing or timer needed.
+	if [ "$have_reset" = 1 ] && [ "$now" -ge "$reset_epoch" ]; then
+		pct=0
+		have_reset=0
+	fi
+
 	local parts=()
 	{ [ "$show_label" = on ] || [ "$show" = all ]; } && [ -n "$label" ] && parts+=("$label")
 	[ "$show_bar" = on ] && parts+=("$(render_bar "$pct" "$bar_width" "$bar_full" "$bar_empty")")
 	parts+=("${pct}% used")
-	if [ "$show_reset" = on ] && [ -n "$reset_epoch" ]; then
+	if [ "$show_reset" = on ] && [ "$have_reset" = 1 ]; then
 		parts+=("· resets in $(human_reset $((reset_epoch - now)))")
 	fi
 
