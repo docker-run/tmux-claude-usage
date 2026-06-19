@@ -1,16 +1,10 @@
-<div align="center">
-
-# tmux-claude-usage
+![demo](https://github.com/docker-run/tmux-claude-usage/releases/download/media/demo.gif)
 
 *Your Claude usage — progress bar, percent, and reset time — right in the tmux status bar.*
 
-[![Download](https://img.shields.io/github/v/release/docker-run/tmux-claude-usage?sort=semver&label=Download&color=2ea44f)](https://github.com/docker-run/tmux-claude-usage/releases/latest)
+[![Download](https://img.shields.io/badge/Download-v1.0.0-2ea44f)](https://github.com/docker-run/tmux-claude-usage/releases/latest)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Build](https://github.com/docker-run/tmux-claude-usage/actions/workflows/shellcheck.yml/badge.svg)](https://github.com/docker-run/tmux-claude-usage/actions/workflows/shellcheck.yml)
-
-![demo](https://github.com/docker-run/tmux-claude-usage/releases/download/media/demo.gif)
-
-</div>
 
 ## Contents
 
