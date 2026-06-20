@@ -82,6 +82,8 @@ example, override the colors to match your theme (hex or palette names both work
 | `@claude_usage_weekly_label` | `Week` | Label for the 7-day window |
 | `@claude_usage_prefix` | _(empty)_ | Text/icon before the segment |
 | `@claude_usage_separator` | `  ` | Between windows in `all` mode |
+| `@claude_usage_stale_after` | _(off)_ | Seconds; flag the bar stale once the cache is older than this |
+| `@claude_usage_stale_label` | `stale` | Word used in the stale marker |
 | `@claude_usage_warning_threshold` | `70` | % for the `warning` color |
 | `@claude_usage_critical_threshold` | `90` | % for the `critical` color |
 | `@claude_usage_color_normal` | _(theme)_ | Color below the warning threshold |
@@ -95,6 +97,18 @@ The bar repaints every `status-interval` seconds (standard tmux setting, default
 
 ```tmux
 set -g status-interval 5
+```
+
+Repainting isn't the same as refreshing, though: the underlying numbers only
+update when **Claude Code** renders and hands the harvester fresh data. Usage you
+rack up elsewhere — the browser, another machine — won't appear until a local
+Claude Code session renders again, so a number can sit unchanged while the real
+figure climbs. There's no token-free way to fetch it on demand. To avoid mistaking
+a stale figure for a live one, set `@claude_usage_stale_after` and the bar appends
+e.g. `(stale 2 hr)` once the cache passes that age:
+
+```tmux
+set -g @claude_usage_stale_after 1800  # mark stale after 30 min
 ```
 
 ## Contribution
