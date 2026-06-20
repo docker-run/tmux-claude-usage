@@ -14,13 +14,14 @@ CACHE_FILE="$(usage_cache_file)"
 [ -f "$CACHE_FILE" ] || exit 0
 
 # Load the harvested values without sourcing (no code execution from the file).
-five_pct="" five_reset="" seven_pct="" seven_reset=""
+five_pct="" five_reset="" seven_pct="" seven_reset="" updated_at=""
 while IFS='=' read -r key val; do
 	case "$key" in
 	FIVE_HOUR_PCT) five_pct="$val" ;;
 	FIVE_HOUR_RESET) five_reset="$val" ;;
 	SEVEN_DAY_PCT) seven_pct="$val" ;;
 	SEVEN_DAY_RESET) seven_reset="$val" ;;
+	UPDATED_AT) updated_at="$val" ;;
 	esac
 done <"$CACHE_FILE"
 
@@ -36,6 +37,8 @@ session_label="$(get_tmux_option @claude_usage_session_label 'Session')"
 weekly_label="$(get_tmux_option @claude_usage_weekly_label 'Week')"
 prefix="$(get_tmux_option @claude_usage_prefix '')"
 separator="$(get_tmux_option @claude_usage_separator '  ')"
+stale_after="$(get_tmux_option @claude_usage_stale_after '')"
+stale_label="$(get_tmux_option @claude_usage_stale_label 'stale')"
 
 now="$(date +%s)"
 
@@ -100,4 +103,15 @@ for i in "${!segments[@]}"; do
 	((i > 0)) && out+="$separator"
 	out+="${segments[$i]}"
 done
+
+# Staleness marker. The numbers only refresh while Claude Code renders; usage
+# incurred elsewhere (browser, another machine) won't show up until then. When
+# the cache is older than @claude_usage_stale_after seconds, flag it so the
+# figure isn't mistaken for live. Off unless the option is set to a positive
+# integer.
+if [[ "$stale_after" =~ ^[0-9]+$ ]] && [ "$stale_after" -gt 0 ] &&
+	[[ "$updated_at" =~ ^[0-9]+$ ]] && [ $((now - updated_at)) -ge "$stale_after" ]; then
+	out+=" ($stale_label $(human_reset $((now - updated_at))))"
+fi
+
 printf '%s%s' "$prefix" "$out"
