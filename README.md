@@ -90,6 +90,22 @@ example, override the colors to match your theme (hex or palette names both work
 | `@claude_usage_color_warning` | `yellow` | Color at/above warning |
 | `@claude_usage_color_critical` | `red` | Color at/above critical |
 
+### Match the demo
+
+The powerline look in the demo above is a full Tokyo Night Storm status-bar
+theme, **not** part of the plugin — the plugin only contributes the
+`#{claude_usage}` segment. To reproduce that exact look, source the example
+theme:
+
+```tmux
+source-file ~/.tmux/plugins/tmux-claude-usage/examples/tokyo-night-storm.conf
+```
+
+It styles your **whole** status bar (left, right, windows) and uses
+[`tmux-prefix-highlight`](https://github.com/tmux-plugins/tmux-prefix-highlight)
+for the `prefix` indicator — drop the `#{prefix_highlight}` token from the file
+if you don't use that plugin.
+
 ## Update frequency
 
 The bar repaints every `status-interval` seconds (standard tmux setting, default
