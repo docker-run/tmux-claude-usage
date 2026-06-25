@@ -53,19 +53,39 @@ set -g @plugin 'docker-run/tmux-claude-usage'
 set -g status-right '#{claude_usage}  %Y-%m-%d %H:%M'
 ```
 
-**3. Fetch and wire it up** — press `prefix + I`, then run once:
+**3. Fetch and wire it up** — press `prefix + I` (TPM clones the plugin), then
+run the installer once. It resolves the plugin's path itself — wherever TPM put
+it, default or a custom `TMUX_PLUGIN_MANAGER_PATH` — so this one line works on
+every setup (run it from inside tmux, right after `prefix + I`):
 
 ```sh
-~/.tmux/plugins/tmux-claude-usage/scripts/init.sh
+bash "$(tmux show-environment -g TMUX_PLUGIN_MANAGER_PATH | cut -d= -f2-)tmux-claude-usage/scripts/init.sh"
 ```
 
-`init.sh` adds the status line command to `~/.claude/settings.json` (backing it
-up first). Use Claude Code normally and the bar fills in.
+`init.sh` adds the status line command to Claude Code's `settings.json` (under
+`~/.claude`, or `$CLAUDE_CONFIG_DIR` if you've set one), backing it up first.
+Use Claude Code normally and the bar fills in.
 
 > Already have a Claude status line? `init.sh` keeps it: it chains your line and
 > the harvester through the single slot, so both run and your line still shows.
 > Use `--force` to install only the harvester instead, or `--uninstall` to
 > restore your original line.
+
+### Without TPM
+
+Clone it anywhere and source the entry point from your `tmux.conf`:
+
+```sh
+git clone https://github.com/docker-run/tmux-claude-usage \
+  ~/.tmux/plugins/tmux-claude-usage
+```
+
+```tmux
+run-shell ~/.tmux/plugins/tmux-claude-usage/claude-usage.tmux
+```
+
+Then place `#{claude_usage}` in your status line (step 2) and run that clone's
+`scripts/init.sh` (step 3).
 
 ## Configuration
 
