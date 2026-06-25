@@ -6,6 +6,15 @@
 
 set -uo pipefail
 
+# Parse numbers in the C locale regardless of the tmux server's environment.
+# used_percentage is a dot-decimal float (e.g. 57.999…); under a comma-radix
+# locale (de_DE, fr_FR, pt_BR, …) the printf '%.0f' below fails to parse it,
+# drops the window, and leaves a silent empty bar. Set as a variable (not a
+# command prefix) so bash 3.2 — macOS's /usr/bin/env bash — re-runs setlocale;
+# the prefix form does nothing there. The segment emits only ASCII and raw
+# UTF-8 bar bytes, so forcing C has no other effect.
+export LC_ALL=C
+
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=helpers.sh
 source "$DIR/helpers.sh"
