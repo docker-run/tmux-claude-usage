@@ -98,8 +98,8 @@ TPM clean (`prefix + alt + u`).
 
 Out of the box the segment shows the 5-hour
 session window, inherits your theme's color normally, and turns **amber** then
-**red** as you approach your limit. Every option below is optional — for
-example, override the colors to match your theme (hex or palette names both work).
+**red** as you approach your limit. Everything below is tunable — for example,
+override the colors to match your theme (hex values or tmux color names both work).
 
 | Option | Default | Description |
 | --- | --- | --- |
@@ -119,24 +119,15 @@ example, override the colors to match your theme (hex or palette names both work
 | `@claude_usage_warning_threshold` | `70` | % for the `warning` color |
 | `@claude_usage_critical_threshold` | `90` | % for the `critical` color |
 | `@claude_usage_color_normal` | _(theme)_ | Color below the warning threshold |
-| `@claude_usage_color_warning` | `yellow` | Color at/above warning |
-| `@claude_usage_color_critical` | `red` | Color at/above critical |
+| `@claude_usage_color_warning` | `#e0af68` | Color at/above warning |
+| `@claude_usage_color_critical` | `#f7768e` | Color at/above critical |
 
 ### Match the demo
 
 The powerline look in the demo above is a full Tokyo Night Storm status-bar
 theme, **not** part of the plugin — the plugin only contributes the
-`#{claude_usage}` segment. To reproduce that exact look, source the example
-theme:
-
-```tmux
-source-file ~/.tmux/plugins/tmux-claude-usage/examples/tokyo-night-storm.conf
-```
-
-It styles your **whole** status bar (left, right, windows) and uses
-[`tmux-prefix-highlight`](https://github.com/tmux-plugins/tmux-prefix-highlight)
-for the `prefix` indicator — drop the `#{prefix_highlight}` token from the file
-if you don't use that plugin.
+`#{claude_usage}` segment. For that exact look, check out
+[`examples/tokyo-night-storm.conf`](examples/tokyo-night-storm.conf).
 
 ## Update frequency
 
