@@ -2,10 +2,13 @@
 # Shared helpers for the tmux segment. Sourced, not executed.
 
 # Path to the cache file the statusLine harvester writes and the segment reads.
-# HOME-based (not TMPDIR) so it is stable across the Claude Code and tmux
-# processes, which may not share a temp dir.
+# Pinned under $HOME — not TMPDIR or XDG_CACHE_HOME — because the harvester runs
+# in Claude Code's process and the segment runs in tmux's, and those two
+# environments can differ. $HOME is the one variable they always agree on, so a
+# fixed $HOME path guarantees both sides resolve the same file. Must match the
+# path hardcoded in scripts/statusline.sh.
 usage_cache_file() {
-	printf '%s/claude-usage/usage' "${XDG_CACHE_HOME:-$HOME/.cache}"
+	printf '%s/.cache/claude-usage/usage' "$HOME"
 }
 
 # Read a tmux user option, falling back to a default when unset/empty.
