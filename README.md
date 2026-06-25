@@ -13,7 +13,6 @@ Your Claude usage — progress bar, percent, and reset time — right in the tmu
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Update frequency](#update-frequency)
-- [Troubleshooting](#troubleshooting)
 - [Contribution](#contribution)
 - [License](#license)
 
@@ -152,21 +151,6 @@ e.g. `(stale 2 hr)` once the cache passes that age:
 ```tmux
 set -g @claude_usage_stale_after 1800  # mark stale after 30 min
 ```
-
-## Troubleshooting
-
-Bar empty or not updating? Run the doctor — it checks every link in the chain
-and tells you exactly what's missing, without changing anything:
-
-```sh
-bash "$(tmux show-environment -g TMUX_PLUGIN_MANAGER_PATH | cut -d= -f2-)tmux-claude-usage/scripts/init.sh" --check
-```
-
-It verifies `jq`, the Claude `settings.json` wiring (honoring `$CLAUDE_CONFIG_DIR`),
-the usage cache, and whether the segment is in your tmux status line. Most blank
-bars are one of: not signed into Pro/Max, `jq` missing from the PATH Claude Code
-runs under, the segment not added to `status-left`/`status-right`, or Claude
-Code simply hasn't rendered yet.
 
 ## Contribution
 
