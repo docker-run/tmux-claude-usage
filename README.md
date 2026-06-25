@@ -34,7 +34,10 @@ whenever Claude renders — continuously while you work.
 
 - `tmux` 3.0+
 - `jq`
-- Claude Code (logged in)
+- Claude Code, signed in with a **Claude Pro or Max** subscription. The usage
+  data (`rate_limits`) is sent only to Pro/Max sessions — not to API-key,
+  Console, Bedrock, Vertex, or Team/Enterprise sessions, where the bar stays
+  empty.
 
 ## Installation
 
@@ -59,8 +62,10 @@ set -g status-right '#{claude_usage}  %Y-%m-%d %H:%M'
 `init.sh` adds the status line command to `~/.claude/settings.json` (backing it
 up first). Use Claude Code normally and the bar fills in.
 
-> Already have a Claude status line? `init.sh` won't overwrite it — re-run with
-> `--force` to replace, or `--uninstall` to remove ours.
+> Already have a Claude status line? `init.sh` keeps it: it chains your line and
+> the harvester through the single slot, so both run and your line still shows.
+> Use `--force` to install only the harvester instead, or `--uninstall` to
+> restore your original line.
 
 ## Configuration
 
