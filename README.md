@@ -13,6 +13,7 @@ Your Claude usage — progress bar, percent, and reset time — right in the tmu
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Update frequency](#update-frequency)
+- [Troubleshooting](#troubleshooting)
 - [Contribution](#contribution)
 - [License](#license)
 
@@ -53,19 +54,46 @@ set -g @plugin 'docker-run/tmux-claude-usage'
 set -g status-right '#{claude_usage}  %Y-%m-%d %H:%M'
 ```
 
-**3. Fetch and wire it up** — press `prefix + I`, then run once:
+**3. Fetch and wire it up** — press `prefix + I` (TPM clones the plugin), then
+run `init.sh` once from wherever TPM put it:
 
 ```sh
+# TPM default:
 ~/.tmux/plugins/tmux-claude-usage/scripts/init.sh
+# XDG config (~/.config/tmux/…):
+~/.config/tmux/plugins/tmux-claude-usage/scripts/init.sh
 ```
 
-`init.sh` adds the status line command to `~/.claude/settings.json` (backing it
-up first). Use Claude Code normally and the bar fills in.
+Not sure which path? This resolves it on any setup:
+
+```sh
+"$(tmux show-environment -g TMUX_PLUGIN_MANAGER_PATH | cut -d= -f2)tmux-claude-usage/scripts/init.sh"
+```
+
+`init.sh` adds the status line command to Claude Code's `settings.json` (under
+`~/.claude`, or `$CLAUDE_CONFIG_DIR` if you've set one), backing it up first.
+Use Claude Code normally and the bar fills in.
 
 > Already have a Claude status line? `init.sh` keeps it: it chains your line and
 > the harvester through the single slot, so both run and your line still shows.
 > Use `--force` to install only the harvester instead, or `--uninstall` to
 > restore your original line.
+
+### Without TPM
+
+Clone it anywhere and source the entry point from your `tmux.conf`:
+
+```sh
+git clone https://github.com/docker-run/tmux-claude-usage \
+  ~/.tmux/plugins/tmux-claude-usage
+```
+
+```tmux
+run-shell ~/.tmux/plugins/tmux-claude-usage/claude-usage.tmux
+```
+
+Then place `#{claude_usage}` in your status line (step 2) and run that clone's
+`scripts/init.sh` (step 3).
 
 ## Configuration
 
@@ -131,6 +159,21 @@ e.g. `(stale 2 hr)` once the cache passes that age:
 ```tmux
 set -g @claude_usage_stale_after 1800  # mark stale after 30 min
 ```
+
+## Troubleshooting
+
+Bar empty or not updating? Run the doctor — it checks every link in the chain
+and tells you exactly what's missing, without changing anything:
+
+```sh
+~/.tmux/plugins/tmux-claude-usage/scripts/init.sh --check
+```
+
+It verifies `jq`, the Claude `settings.json` wiring (honoring `$CLAUDE_CONFIG_DIR`),
+the usage cache, and whether the segment is in your tmux status line. Most blank
+bars are one of: not signed into Pro/Max, `jq` missing from the PATH Claude Code
+runs under, the segment not added to `status-left`/`status-right`, or Claude
+Code simply hasn't rendered yet.
 
 ## Contribution
 
