@@ -52,9 +52,7 @@ set -g status-right '#{claude_usage}  %Y-%m-%d %H:%M'
 ```
 
 **3. Fetch and wire it up** — press `prefix + I` (TPM clones the plugin), then
-run the installer once. It resolves the plugin's path itself — wherever TPM put
-it, default or a custom `TMUX_PLUGIN_MANAGER_PATH` — so this one line works on
-every setup (run it from inside tmux, right after `prefix + I`):
+run the installer once:
 
 ```sh
 bash "$(tmux show-environment -g TMUX_PLUGIN_MANAGER_PATH | cut -d= -f2-)tmux-claude-usage/scripts/init.sh"
