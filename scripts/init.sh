@@ -132,11 +132,25 @@ fi
 
 backup="$SETTINGS.bak.$(date +%s)"
 
+# Back up settings.json, then keep only the newest $KEEP_BACKUPS so the .bak
+# files don't pile up over repeated installs/uninstalls. Backups are named by
+# epoch, so iterating the (lexically sorted) glob is already oldest-first.
+KEEP_BACKUPS=3
+backup_settings() {
+	cp "$SETTINGS" "$backup"
+	local f all=()
+	for f in "$SETTINGS".bak.*; do
+		[ -e "$f" ] && all+=("$f")
+	done
+	local drop=$((${#all[@]} - KEEP_BACKUPS)) i
+	for ((i = 0; i < drop; i++)); do rm -f "${all[$i]}"; done
+}
+
 # Point the statusLine slot at one of our commands, keeping the existing
 # padding (or 0). Args: command-path.
 set_statusline() {
 	local cmd="$1" tmp
-	cp "$SETTINGS" "$backup"
+	backup_settings
 	tmp="$(mktemp)"
 	jq --arg cmd "$cmd" \
 		'.statusLine = {type: "command", command: $cmd, padding: (.statusLine.padding // 0)}' \
@@ -161,7 +175,7 @@ current="$(jq -r '.statusLine.command // empty' "$SETTINGS")"
 
 # --- uninstall -------------------------------------------------------------
 if [ "$mode" = "--uninstall" ]; then
-	cp "$SETTINGS" "$backup"
+	backup_settings
 	tmp="$(mktemp)"
 	if [ "$current" = "$CHAIN_CMD" ] && [ -f "$ORIGINAL" ]; then
 		jq --slurpfile orig "$ORIGINAL" '.statusLine = $orig[0]' "$SETTINGS" >"$tmp" && mv "$tmp" "$SETTINGS"
@@ -189,7 +203,7 @@ fi
 if [ "$mode" != "--force" ] && [ -n "$current" ]; then
 	mkdir -p "$CONFIG_DIR"
 	jq '.statusLine' "$SETTINGS" >"$ORIGINAL"
-	cp "$SETTINGS" "$backup"
+	backup_settings
 	tmp="$(mktemp)"
 	jq --arg cmd "$CHAIN_CMD" '.statusLine.command = $cmd' "$SETTINGS" >"$tmp" && mv "$tmp" "$SETTINGS"
 	cat <<EOF
