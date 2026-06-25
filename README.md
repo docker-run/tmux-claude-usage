@@ -55,19 +55,12 @@ set -g status-right '#{claude_usage}  %Y-%m-%d %H:%M'
 ```
 
 **3. Fetch and wire it up** — press `prefix + I` (TPM clones the plugin), then
-run `init.sh` once from wherever TPM put it:
+run the installer once. It resolves the plugin's path itself — wherever TPM put
+it, default or a custom `TMUX_PLUGIN_MANAGER_PATH` — so this one line works on
+every setup (run it from inside tmux, right after `prefix + I`):
 
 ```sh
-# TPM default:
-~/.tmux/plugins/tmux-claude-usage/scripts/init.sh
-# XDG config (~/.config/tmux/…):
-~/.config/tmux/plugins/tmux-claude-usage/scripts/init.sh
-```
-
-Not sure which path? This resolves it on any setup:
-
-```sh
-"$(tmux show-environment -g TMUX_PLUGIN_MANAGER_PATH | cut -d= -f2)tmux-claude-usage/scripts/init.sh"
+bash "$(tmux show-environment -g TMUX_PLUGIN_MANAGER_PATH | cut -d= -f2-)tmux-claude-usage/scripts/init.sh"
 ```
 
 `init.sh` adds the status line command to Claude Code's `settings.json` (under
@@ -166,7 +159,7 @@ Bar empty or not updating? Run the doctor — it checks every link in the chain
 and tells you exactly what's missing, without changing anything:
 
 ```sh
-~/.tmux/plugins/tmux-claude-usage/scripts/init.sh --check
+bash "$(tmux show-environment -g TMUX_PLUGIN_MANAGER_PATH | cut -d= -f2-)tmux-claude-usage/scripts/init.sh" --check
 ```
 
 It verifies `jq`, the Claude `settings.json` wiring (honoring `$CLAUDE_CONFIG_DIR`),
