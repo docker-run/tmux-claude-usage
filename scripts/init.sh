@@ -10,7 +10,8 @@
 #   ./scripts/init.sh --force    install only the harvester, replacing any
 #                                existing statusLine
 #   ./scripts/init.sh --uninstall  remove the harvester; restore the statusLine
-#                                we chained, if any
+#                                we chained, if any; delete the usage cache and
+#                                saved state
 #   ./scripts/init.sh --check    diagnose a blank/stale bar (jq, wiring, cache,
 #                                tmux segment) without changing anything
 #
@@ -175,20 +176,31 @@ current="$(jq -r '.statusLine.command // empty' "$SETTINGS")"
 
 # --- uninstall -------------------------------------------------------------
 if [ "$mode" = "--uninstall" ]; then
-	backup_settings
-	tmp="$(mktemp)"
 	if [ "$current" = "$CHAIN_CMD" ] && [ -f "$ORIGINAL" ]; then
+		backup_settings
+		tmp="$(mktemp)"
 		jq --slurpfile orig "$ORIGINAL" '.statusLine = $orig[0]' "$SETTINGS" >"$tmp" && mv "$tmp" "$SETTINGS"
-		rm -f "$ORIGINAL"
 		echo "✓ restored your original statusLine (backup: $backup)"
 	elif [ "$current" = "$HARVEST_CMD" ] || [ "$current" = "$CHAIN_CMD" ]; then
+		backup_settings
+		tmp="$(mktemp)"
 		jq 'del(.statusLine)' "$SETTINGS" >"$tmp" && mv "$tmp" "$SETTINGS"
-		rm -f "$ORIGINAL"
 		echo "✓ removed statusLine from $SETTINGS (backup: $backup)"
 	else
-		rm -f "$tmp"
-		echo "statusLine isn't this plugin's; leaving it untouched."
+		echo "• statusLine isn't this plugin's — left untouched"
 	fi
+
+	# Remove the plugin's own data: the saved-original snapshot (and its dir)
+	# and the usage cache. Leaves your tmux config and the TPM clone alone.
+	rm -rf "$CONFIG_DIR" "$(dirname "$(usage_cache_file)")"
+	echo "✓ removed plugin data (usage cache + saved state)"
+	cat <<EOF
+
+To finish removing the plugin: delete the
+  set -g @plugin 'docker-run/tmux-claude-usage'
+line and the '#{claude_usage}' placeholder from your tmux config, then run TPM
+clean (prefix + alt + u).
+EOF
 	exit 0
 fi
 

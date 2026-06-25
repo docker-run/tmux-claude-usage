@@ -35,9 +35,7 @@ whenever Claude renders — continuously while you work.
 - `tmux` 3.0+
 - `jq`
 - Claude Code, signed in with a **Claude Pro or Max** subscription. The usage
-  data (`rate_limits`) is sent only to Pro/Max sessions — not to API-key,
-  Console, Bedrock, Vertex, or Team/Enterprise sessions, where the bar stays
-  empty.
+  data (`rate_limits`) is sent only to Pro/Max sessions.
 
 ## Installation
 
@@ -54,9 +52,7 @@ set -g status-right '#{claude_usage}  %Y-%m-%d %H:%M'
 ```
 
 **3. Fetch and wire it up** — press `prefix + I` (TPM clones the plugin), then
-run the installer once. It resolves the plugin's path itself — wherever TPM put
-it, default or a custom `TMUX_PLUGIN_MANAGER_PATH` — so this one line works on
-every setup (run it from inside tmux, right after `prefix + I`):
+run the installer once:
 
 ```sh
 bash "$(tmux show-environment -g TMUX_PLUGIN_MANAGER_PATH | cut -d= -f2-)tmux-claude-usage/scripts/init.sh"
@@ -86,6 +82,17 @@ run-shell ~/.tmux/plugins/tmux-claude-usage/claude-usage.tmux
 
 Then place `#{claude_usage}` in your status line (step 2) and run that clone's
 `scripts/init.sh` (step 3).
+
+### Uninstall
+
+```sh
+bash "$(tmux show-environment -g TMUX_PLUGIN_MANAGER_PATH | cut -d= -f2-)tmux-claude-usage/scripts/init.sh" --uninstall
+```
+
+Restores any status line it chained, removes the harvester from Claude's
+`settings.json`, and deletes the usage cache. To remove the plugin entirely,
+also drop the `@plugin` line and `#{claude_usage}` from your tmux config and run
+TPM clean (`prefix + alt + u`).
 
 ## Configuration
 
