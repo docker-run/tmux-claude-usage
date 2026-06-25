@@ -83,6 +83,17 @@ run-shell ~/.tmux/plugins/tmux-claude-usage/claude-usage.tmux
 Then place `#{claude_usage}` in your status line (step 2) and run that clone's
 `scripts/init.sh` (step 3).
 
+### Uninstall
+
+```sh
+bash "$(tmux show-environment -g TMUX_PLUGIN_MANAGER_PATH | cut -d= -f2-)tmux-claude-usage/scripts/init.sh" --uninstall
+```
+
+Restores any status line it chained, removes the harvester from Claude's
+`settings.json`, and deletes the usage cache. To remove the plugin entirely,
+also drop the `@plugin` line and `#{claude_usage}` from your tmux config and run
+TPM clean (`prefix + alt + u`).
+
 ## Configuration
 
 Out of the box the segment shows the 5-hour
