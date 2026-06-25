@@ -35,9 +35,7 @@ whenever Claude renders — continuously while you work.
 - `tmux` 3.0+
 - `jq`
 - Claude Code, signed in with a **Claude Pro or Max** subscription. The usage
-  data (`rate_limits`) is sent only to Pro/Max sessions — not to API-key,
-  Console, Bedrock, Vertex, or Team/Enterprise sessions, where the bar stays
-  empty.
+  data (`rate_limits`) is sent only to Pro/Max sessions.
 
 ## Installation
 
