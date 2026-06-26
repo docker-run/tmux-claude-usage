@@ -26,7 +26,12 @@ source "$DIR/helpers.sh"
 SETTINGS="${CLAUDE_SETTINGS:-${CLAUDE_CONFIG_DIR:-$HOME/.claude}/settings.json}"
 HARVEST_CMD="$DIR/statusline.sh"
 CHAIN_CMD="$DIR/chain.sh"
-CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/claude-usage"
+# Pinned under $HOME (not XDG_CONFIG_HOME) for the same reason as the cache: this
+# file is written here by init.sh in your shell but read back by chain.sh in
+# Claude Code's render environment, and those two can disagree on XDG_CONFIG_HOME
+# (e.g. GUI-launched Claude). $HOME is the one path both always resolve the same.
+# Must match the path hardcoded in scripts/chain.sh.
+CONFIG_DIR="$HOME/.config/claude-usage"
 ORIGINAL="$CONFIG_DIR/original-statusline.json"
 mode="${1:-}"
 

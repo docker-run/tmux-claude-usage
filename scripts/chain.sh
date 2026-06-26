@@ -13,7 +13,11 @@
 set -uo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ORIGINAL="${XDG_CONFIG_HOME:-$HOME/.config}/claude-usage/original-statusline.json"
+# Pinned under $HOME (not XDG_CONFIG_HOME): we run inside Claude Code's render
+# environment, which can lack the XDG vars your interactive shell sets — so a
+# fixed $HOME path guarantees we read the same file init.sh wrote. Must match the
+# path hardcoded in scripts/init.sh.
+ORIGINAL="$HOME/.config/claude-usage/original-statusline.json"
 
 json="$(cat)"
 

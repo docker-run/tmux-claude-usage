@@ -52,7 +52,7 @@ set -g status-right '#{claude_usage}  %Y-%m-%d %H:%M'
 ```
 
 **3. Fetch and wire it up** — press `prefix + I` (TPM clones the plugin), then
-run the installer once:
+run the installer once (from inside tmux, so it can locate the clone):
 
 ```sh
 bash "$(tmux show-environment -g TMUX_PLUGIN_MANAGER_PATH | cut -d= -f2-)tmux-claude-usage/scripts/init.sh"
@@ -66,6 +66,13 @@ Use Claude Code normally and the bar fills in.
 > the harvester through the single slot, so both run and your line still shows.
 > Use `--force` to install only the harvester instead, or `--uninstall` to
 > restore your original line.
+>
+> **Ordering matters.** Claude Code has only **one** status-line slot. If you set
+> up another status-line tool (e.g.
+> [ccstatusline](https://github.com/sirmalloc/ccstatusline)) _after_ this — or
+> re-run its configurator later — it overwrites the slot and the usage bar
+> silently stops updating. Just re-run `init.sh` to re-chain (it picks the other
+> tool back up), or run `init.sh --check` to diagnose.
 
 ### Without TPM
 
