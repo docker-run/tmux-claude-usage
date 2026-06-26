@@ -13,17 +13,40 @@
 set -uo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ORIGINAL="${XDG_CONFIG_HOME:-$HOME/.config}/claude-usage/original-statusline.json"
+# Pinned under $HOME (not XDG_CONFIG_HOME): we run inside Claude Code's render
+# environment, which can lack the XDG vars your interactive shell sets — so a
+# fixed $HOME path guarantees we read the same file init.sh wrote. Must match the
+# path hardcoded in scripts/init.sh.
+ORIGINAL="$HOME/.config/claude-usage/original-statusline.json"
 
 json="$(cat)"
 
 # Harvest: write the usage cache, discard the (empty) output.
 printf '%s' "$json" | "$DIR/statusline.sh" >/dev/null 2>&1
 
+# Resolve jq the same way the harvester does. Claude Code may be launched from a
+# GUI or IDE whose PATH lacks Homebrew etc., so fall back to common install
+# locations before giving up. Without this, a chained statusLine would silently
+# vanish in exactly the environment statusline.sh is hardened against — the
+# usage cache would keep updating while your own line disappeared. Keep the probe
+# list in sync with scripts/statusline.sh.
+JQ="$(command -v jq 2>/dev/null || true)"
+if [ -z "$JQ" ]; then
+	for d in /opt/homebrew/bin /usr/local/bin /usr/bin /bin /home/linuxbrew/.linuxbrew/bin; do
+		if [ -x "$d/jq" ]; then JQ="$d/jq"; break; fi
+	done
+fi
+
 # Re-run your original statusLine on the same JSON and pass its output through.
 # The command string is read from a file (never embedded in another quoting
 # layer), so arbitrary quotes in it survive intact.
-if [ -f "$ORIGINAL" ] && command -v jq >/dev/null 2>&1; then
-	cmd="$(jq -r '.command // empty' "$ORIGINAL" 2>/dev/null)"
+if [ -f "$ORIGINAL" ] && [ -n "$JQ" ]; then
+	cmd="$("$JQ" -r '.command // empty' "$ORIGINAL" 2>/dev/null)"
 	[ -n "$cmd" ] && printf '%s' "$json" | bash -c "$cmd"
 fi
+
+# Always succeed. We're a transparent status-line wrapper: the usage cache is
+# written and the original line (if any) has been emitted, so chain.sh's own
+# exit status must not leak a failing wrapped command or a missing/corrupt
+# original. Mirrors statusline.sh, which also ends in `exit 0`.
+exit 0
