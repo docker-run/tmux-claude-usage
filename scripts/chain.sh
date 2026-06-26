@@ -44,3 +44,9 @@ if [ -f "$ORIGINAL" ] && [ -n "$JQ" ]; then
 	cmd="$("$JQ" -r '.command // empty' "$ORIGINAL" 2>/dev/null)"
 	[ -n "$cmd" ] && printf '%s' "$json" | bash -c "$cmd"
 fi
+
+# Always succeed. We're a transparent status-line wrapper: the usage cache is
+# written and the original line (if any) has been emitted, so chain.sh's own
+# exit status must not leak a failing wrapped command or a missing/corrupt
+# original. Mirrors statusline.sh, which also ends in `exit 0`.
+exit 0
